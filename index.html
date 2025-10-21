@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carry-On Trailer - Mobile Scanning ROI Calculator v2.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #38003C 0%, #7A39ED 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .scenario-tabs {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .scenario-tab {
+            flex: 1;
+            padding: 10px 16px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .scenario-tab.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: #1f2937;
+        }
+
+        .scenario-tab:hover {
+            background: #e5e7eb;
+        }
+
+        .scenario-tab.active:hover {
+            background: white;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #7A39ED;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #38003C;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #7A39ED;
+            border: 1px solid #7A39ED;
+        }
+
+        .btn-outline:hover {
+            background: #f3f1ff;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .benefit-positive {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .cost-negative {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .expandable {
+            margin-bottom: 1rem;
+        }
+
+        .expandable-header {
+            background: #f9fafb;
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .expandable-header:hover {
+            background: #f3f4f6;
+        }
+
+        .expandable-content {
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            display: none;
+        }
+
+        .expandable-content.active {
+            display: block;
+        }
+
+        .brand-accent-blue { color: #38003C; }
+        .brand-accent-green { color: #16815A; }
+        .brand-accent-purple { color: #7A39ED; }
+        .brand-accent-orange { color: #04DFC6; }
+
+        .border-blue { border-color: #38003C; }
+        .border-green { border-color: #16815A; }
+        .border-purple { border-color: #7A39ED; }
+        .border-orange { border-color: #04DFC6; }
+
+        .bg-blue { background-color: #38003C; }
+        .bg-green { background-color: #16815A; }
+        .bg-purple { background-color: #7A39ED; }
+        .bg-orange { background-color: #04DFC6; }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                <img src="assets/images/Faye Logo - White.png" alt="Faye" style="height: 40px;">
+            </div>
+            <h1>Carry-On Trailer Mobile Scanning ROI Calculator v2.0</h1>
+            <p>Interactive business case for implementing smartphone-based scanning vs. Zebra hardware across Carry-On's manufacturing network</p>
+            <p style="font-size: 0.875rem; margin-top: 0.5rem; opacity: 0.8;">Updated for 2025 multi-plant operations with industry benchmarks</p>
+        </div>
+
+        <div id="calculator-content">
+            <!-- Scenario Planning -->
+            <div class="card border-blue">
+                <div class="card-header bg-blue" style="color: white;">
+                    <div class="card-title">
+                        Scenario Planning
+                    </div>
+                    <div class="card-description" style="color: rgba(255,255,255,0.8);">
+                        Select your analysis approach based on risk tolerance and implementation confidence
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="scenario-tabs">
+                        <div class="scenario-tab active" onclick="setScenario('conservative')">Conservative</div>
+                        <div class="scenario-tab" onclick="setScenario('realistic')">Realistic</div>
+                        <div class="scenario-tab" onclick="setScenario('optimistic')">Optimistic</div>
+                    </div>
+                    <div id="scenario-description">
+                        <div class="alert alert-warning">
+                            ⚠️ Conservative scenario uses reduced assumptions with 25% implementation risk factor (75% success rate)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credibility Warning -->
+            <div id="credibility-warning" style="display: none;">
+                <div class="alert alert-warning">
+                    ⚠️ ROI above 500% may face credibility challenges with executives. Consider more conservative assumptions.
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="grid grid-4">
+                <div class="metric-card border-green">
+                    <div class="metric-value benefit-positive" id="totalSavings">$594K</div>
+                    <div class="metric-label">Net 4-Year Savings</div>
+                </div>
+                <div class="metric-card border-blue">
+                    <div class="metric-value brand-accent-blue" id="paybackPeriod">11.2</div>
+                    <div class="metric-label">Payback Period (months)</div>
+                </div>
+                <div class="metric-card border-purple">
+                    <div class="metric-value brand-accent-purple" id="roiPercent">340%</div>
+                    <div class="metric-label">4-Year ROI</div>
+                </div>
+                <div class="metric-card border-orange">
+                    <div class="metric-value brand-accent-orange" id="plantsImpacted">6</div>
+                    <div class="metric-label">Plants Impacted</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="showSaveDialog()">
+                    Save Scenario
+                </button>
+                <button class="btn btn-primary" onclick="showLoadDialog()">
+                    Load Scenario
+                </button>
+                <button class="btn btn-outline" onclick="setBaselineScenario()">
+                    Set Baseline (No Change)
+                </button>
+                <button class="btn btn-outline" onclick="exportToPDF()">
+                    Export to PDF
+                </button>
+                <button class="btn btn-outline" onclick="exportToExcel()">
+                    Export to Excel
+                </button>
+                <button class="btn btn-outline" onclick="resetCalculator()">
+                    Reset Calculator
+                </button>
+            </div>
+
+            <!-- Save Dialog Modal -->
+            <div id="saveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 12px; min-width: 450px;">
+                    <h3 style="margin-bottom: 1rem;">Save Scenario</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Save Type:</label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <input type="radio" id="saveToNamed" name="saveType" value="named" checked onchange="toggleSaveOptions()">
+                            <label for="saveToNamed">Custom Named Scenario</label>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <input type="radio" id="saveToSlot" name="saveType" value="slot" onchange="toggleSaveOptions()">
+                            <label for="saveToSlot">Save to Scenario Slot</label>
+                        </div>
+                    </div>
+                    <div id="namedSaveOptions" style="margin-bottom: 1rem;">
+                        <label class="form-label">Scenario Name:</label>
+                        <input type="text" id="scenarioName" class="form-input" placeholder="Enter scenario name..." style="margin-bottom: 0.5rem;">
+                    </div>
+                    <div id="slotSaveOptions" style="margin-bottom: 1rem; display: none;">
+                        <label class="form-label">Choose Scenario Slot:</label>
+                        <select id="scenarioSlot" class="form-input">
+                            <option value="conservative">Conservative</option>
+                            <option value="realistic">Realistic</option>
+                            <option value="optimistic">Optimistic</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button class="btn btn-outline" onclick="closeSaveDialog()">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveScenario()">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load Dialog Modal -->
+            <div id="loadModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 12px; min-width: 500px; max-height: 70vh; overflow-y: auto;">
+                    <h3 style="margin-bottom: 1rem;">Load Scenario</h3>
+                    <div id="savedScenariosList" style="margin-bottom: 1rem;">
+                        <!-- Dynamically populated -->
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button class="btn btn-outline" onclick="closeLoadDialog()">Cancel</button>
+                        <button class="btn btn-outline" onclick="clearAllScenarios()">Clear All</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <!-- Input Parameters -->
+                <div>
+                    <!-- Manufacturing Operations -->
+                    <div class="card border-blue">
+                        <div class="card-header bg-blue" style="color: white;">
+                            <div class="card-title">
+                                Manufacturing Operations
+                            </div>
+                            <div class="card-description" style="color: rgba(255,255,255,0.8);">
+                                Current Carry-On Trailer production metrics
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Number of Plants: <span id="plantsValue">6</span></label>
+                                <input type="range" class="slider" id="plants" min="1" max="12" value="6" onchange="updateCalculations()" oninput="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>1</span>
+                                    <span>Current ATW footprint</span>
+                                    <span>12</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Trailers per Plant/Day: <span id="trailersPerDayValue">50</span></label>
+                                <input type="range" class="slider" id="trailersPerDay" min="20" max="150" value="50" onchange="updateCalculations()" oninput="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>20</span>
+                                    <span>Industry standard</span>
+                                    <span>150</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">Tires per Trailer: <span id="tiresPerTrailerValue">2.5</span> 💡</label>
+                                    <input type="range" class="slider" id="tiresPerTrailer" min="2" max="8" step="0.5" value="2.5" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>2 tires</span>
+                                        <span>Includes spares on some models</span>
+                                        <span>8 tires</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Working Days/Year: <span id="workingDaysValue">250</span> 💡</label>
+                                    <input type="range" class="slider" id="workingDays" min="200" max="300" value="250" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>200</span>
+                                        <span>Manufacturing schedule</span>
+                                        <span>300</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Labor & Efficiency -->
+                    <div class="card border-green">
+                        <div class="card-header bg-green" style="color: white;">
+                            <div class="card-title">
+                                ⚡ Labor & Efficiency
+                            </div>
+                            <div class="card-description" style="color: rgba(255,255,255,0.8);">
+                                Current → Future state with percentage improvements
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">VIN Scan Time: <span id="vinCurrentValue">15</span>s → <span id="vinFutureValue">10</span>s 💡</label>
+                                <input type="range" class="slider" id="vinImprovement" min="0" max="66" value="33" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>0% (no change)</span>
+                                    <span><span id="vinImprovementValue">33</span>% faster with mobile app</span>
+                                    <span>66%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">TIN Capture Time: <span id="tinCurrentValue">60</span>s → <span id="tinFutureValue">20</span>s 💡</label>
+                                <input type="range" class="slider" id="tinImprovement" min="0" max="83" value="66" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>0% (no change)</span>
+                                    <span><span id="tinImprovementValue">66</span>% faster with AI OCR</span>
+                                    <span>83%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Error Rate: <span id="errorCurrentValue">8</span>% → <span id="errorFutureValue">1</span>% 💡</label>
+                                <input type="range" class="slider" id="errorImprovement" min="0" max="87" value="87" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>0% (no change)</span>
+                                    <span><span id="errorImprovementValue">87</span>% error reduction</span>
+                                    <span>87%</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">Operator Wage: $<span id="operatorWageValue">25</span>/hour 💡</label>
+                                    <input type="range" class="slider" id="operatorWage" min="15" max="50" value="25" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>$15</span>
+                                        <span>Loaded rate with benefits</span>
+                                        <span>$50</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Training Time: <span id="trainingCurrentValue">5</span> → <span id="trainingFutureValue">3</span> days 💡</label>
+                                    <input type="range" class="slider" id="trainingImprovement" min="0" max="50" value="40" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>0% (no change)</span>
+                                        <span><span id="trainingImprovementValue">40</span>% faster onboarding</span>
+                                        <span>50%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hardware & Implementation -->
+                    <div class="card border-purple">
+                        <div class="card-header bg-purple" style="color: white;">
+                            <div class="card-title">
+                                💻 Hardware & Implementation
+                            </div>
+                            <div class="card-description" style="color: rgba(255,255,255,0.8);">
+                                Cost comparison and implementation expenses
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Zebra Device Cost: $<span id="zebraCostValue">1,800</span> 💡</label>
+                                <input type="range" class="slider" id="zebraCost" min="1000" max="3000" step="100" value="1800" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>$1,000</span>
+                                    <span>Including accessories & cradles</span>
+                                    <span>$3,000</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Smartphone Cost: $<span id="smartphoneCostValue">600</span> 💡</label>
+                                <input type="range" class="slider" id="smartphoneCost" min="300" max="1200" step="50" value="600" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>$300</span>
+                                    <span>Corporate-managed with rugged case</span>
+                                    <span>$1,200</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">Devices per Plant: <span id="devicesPerPlantValue">10</span> 💡</label>
+                                    <input type="range" class="slider" id="devicesPerPlant" min="5" max="25" value="10" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>5</span>
+                                        <span>Shared shifts</span>
+                                        <span>25</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">App Development: $<span id="appDevelopmentCostValue">150K</span> 💡</label>
+                                    <input type="range" class="slider" id="appDevelopmentCost" min="75000" max="300000" step="25000" value="150000" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>$75K</span>
+                                        <span>AI/OCR + Azure integration</span>
+                                        <span>$300K</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk & Compliance -->
+                    <div class="card border-orange">
+                        <div class="card-header bg-orange" style="color: white;">
+                            <div class="card-title">
+                                🛡️ Risk & Compliance
+                            </div>
+                            <div class="card-description" style="color: rgba(255,255,255,0.8);">
+                                Compliance benefits and risk mitigation
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Annual Compliance Risk: $<span id="complianceRiskValue">25K</span> 💡</label>
+                                <input type="range" class="slider" id="complianceRisk" min="10000" max="100000" step="5000" value="25000" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>$10K</span>
+                                    <span>NHTSA recall readiness & audit prep</span>
+                                    <span>$100K</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Annual Misload Reduction: $<span id="misloadReductionValue">100K</span> 💡</label>
+                                <input type="range" class="slider" id="misloadReduction" min="25000" max="250000" step="25000" value="100000" onchange="updateCalculations()">
+                                <div class="slider-labels">
+                                    <span>$25K</span>
+                                    <span><1% misload prevention saves $100K+/year</span>
+                                    <span>$250K</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">IT/Admin Savings: $<span id="itAdminSavingsValue">75K</span> 💡</label>
+                                    <input type="range" class="slider" id="itAdminSavings" min="25000" max="150000" step="10000" value="75000" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>$25K</span>
+                                        <span>2-3 hrs/day admin time saved</span>
+                                        <span>$150K</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Audit Savings: $<span id="auditSavingsValue">15K</span> 💡</label>
+                                    <input type="range" class="slider" id="auditSavings" min="5000" max="50000" step="2500" value="15000" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>$5K</span>
+                                        <span>3 days saved per audit cycle</span>
+                                        <span>$50K</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Hosting/Support: $<span id="annualHostingValue">25K</span> 💡</label>
+                                    <input type="range" class="slider" id="annualHosting" min="10000" max="50000" step="5000" value="25000" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>$10K</span>
+                                        <span>Azure & maintenance costs</span>
+                                        <span>$50K</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Training Savings: $<span id="trainingSavingsValue">12K</span> 💡</label>
+                                    <input type="range" class="slider" id="trainingSavings" min="5000" max="30000" step="1000" value="12000" onchange="updateCalculations()">
+                                    <div class="slider-labels">
+                                        <span>$5K</span>
+                                        <span>30-50% faster onboarding</span>
+                                        <span>$30K</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results and Analysis -->
+                <div>
+                    <!-- Cost Comparison -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title brand-accent-blue">
+                                💰 4-Year Cost Comparison
+                            </div>
+                            <div class="card-description">
+                                Zebra hardware path vs Mobile app implementation
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="breakdown-item">
+                                <span><strong>Hardware Investment</strong></span>
+                                <span>
+                                    <span class="cost-negative" id="zebraHardware">$108,000</span> vs 
+                                    <span class="cost-negative" id="mobileHardware">$36,000</span> = 
+                                    <span class="benefit-positive" id="hardwareSavings">$72,000</span>
+                                </span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span><strong>Maintenance (4 years)</strong></span>
+                                <span>
+                                    <span class="cost-negative" id="zebraMaintenance">$64,800</span> vs 
+                                    <span class="cost-negative" id="mobileMaintenance">$7,200</span> = 
+                                    <span class="benefit-positive" id="maintenanceSavings">$57,600</span>
+                                </span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span><strong>Labor Savings (4 years)</strong></span>
+                                <span class="benefit-positive" id="laborSavings">$225,000</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span><strong>Error Reduction (4 years)</strong></span>
+                                <span class="benefit-positive" id="errorSavings">$400,000</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span><strong>Compliance Risk (4 years)</strong></span>
+                                <span class="benefit-positive" id="complianceSavings">$100,000</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span><strong>Implementation Cost</strong></span>
+                                <span class="cost-negative" id="implementationCost">($250,000)</span>
+                            </div>
+                            <div class="breakdown-item" style="border-top: 2px solid #3b82f6; font-weight: bold; margin-top: 1rem; padding-top: 1rem;">
+                                <span><strong>Net 4-Year Benefit</strong></span>
+                                <span class="benefit-positive" id="netBenefit">$594,600</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Assessment -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title brand-accent-orange">
+                                📊 Risk Assessment
+                            </div>
+                            <div class="card-description">
+                                Implementation risk factors and success rates
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="breakdown-item">
+                                <span>Implementation Success Rate</span>
+                                <span id="successRate">85%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Risk Adjustment Factor</span>
+                                <span id="riskFactor">1.0x</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Scenario Mode</span>
+                                <span id="currentScenario">Realistic</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>3-Year NPV (10% discount)</span>
+                                <span class="benefit-positive" id="threeYearNPV">$445,200</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title brand-accent-green">
+                                📈 Benefits Breakdown
+                            </div>
+                            <div class="card-description">
+                                Distribution of annual benefits by category
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="benefitsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4-Year Analysis Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title brand-accent-purple">
+                                📊 4-Year Financial Analysis
+                            </div>
+                            <div class="card-description">
+                                Year-over-year benefits, costs, and net impact
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="yearlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Breakdown -->
+                    <div class="expandable">
+                        <div class="expandable-header" onclick="toggleExpand(this)">
+                            <span><strong>📋 Detailed Time & Efficiency Analysis</strong></span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Per Trailer Time Savings:</strong></p>
+                            <ul style="margin: 0.5rem 0;">
+                                <li>VIN Scanning: <span id="vinSavingsDetail">10 seconds</span> per trailer</li>
+                                <li>TIN Capture: <span id="tinSavingsDetail">100 seconds</span> per trailer</li>
+                                <li>Total per trailer: <span id="totalTimePerTrailer">110 seconds (1.8 minutes)</span></li>
+                            </ul>
+                            <p><strong>Daily Savings Across Network:</strong></p>
+                            <ul style="margin: 0.5rem 0;">
+                                <li>Per plant: <span id="dailyPlantSavings">1.5 hours</span></li>
+                                <li>All plants: <span id="dailyNetworkSavings">9 hours</span></li>
+                                <li>Annual network: <span id="annualHoursSaved">2,250 hours</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="expandable">
+                        <div class="expandable-header" onclick="toggleExpand(this)">
+                            <span><strong>🔧 Implementation Roadmap</strong></span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Phase 1 (Months 1-4): Development & Pilot</strong></p>
+                            <ul style="margin: 0.5rem 0 1rem 0;">
+                                <li>Mobile app development with AI/OCR capabilities</li>
+                                <li>Azure integration and Sugar CRM API enhancements</li>
+                                <li>Pilot deployment at 1-2 plants</li>
+                                <li>Investment: $100,000</li>
+                            </ul>
+                            <p><strong>Phase 2 (Months 5-8): Full Deployment</strong></p>
+                            <ul style="margin: 0.5rem 0 1rem 0;">
+                                <li>Rollout to all 6 plants</li>
+                                <li>Staff training and change management</li>
+                                <li>Hardware procurement and setup</li>
+                                <li>Investment: $50,000</li>
+                            </ul>
+                            <p><strong>Phase 3 (Months 9-12): Optimization</strong></p>
+                            <ul style="margin: 0.5rem 0;">
+                                <li>Performance monitoring and analytics</li>
+                                <li>ATW brand expansion planning</li>
+                                <li>Payback achievement: Month 11</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="expandable">
+                        <div class="expandable-header" onclick="toggleExpand(this)">
+                            <span><strong>🎯 Strategic Value Drivers</strong></span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Operational Excellence:</strong></p>
+                            <ul style="margin: 0.5rem 0;">
+                                <li>Reduced employee training time (30-50% faster onboarding)</li>
+                                <li>Standardized process across all ATW brands</li>
+                                <li>Scalable to PJ Trailers and Big Tex operations</li>
+                                <li>Future-ready platform for AI enhancements</li>
+                            </ul>
+                            <p><strong>Competitive Advantage:</strong></p>
+                            <ul style="margin: 0.5rem 0;">
+                                <li>Digital traceability differentiator in trailer industry</li>
+                                <li>Enhanced dealer confidence through verified data</li>
+                                <li>NHTSA recall readiness with immediate VIN-TIN lookup</li>
+                                <li>Improved customer satisfaction via faster issue resolution</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 3rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+            <p>This calculator provides estimates based on Carry-On Trailer's manufacturing model and industry benchmarks.</p>
+            <p style="margin-top: 0.5rem;">Actual results may vary based on implementation approach and market conditions.</p>
+            <p style="margin-top: 1rem; font-weight: 600;">Version 2.0 - Enhanced with scenario planning and advanced analytics</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentScenario = 'realistic';
+        let savedScenarios = {};
+        let benefitsChart, yearlyChart;
+
+        // Scenario configurations
+        const scenarioConfig = {
+            conservative: {
+                riskFactor: 0.7,
+                successRate: 0.75,
+                description: "⚠️ Conservative scenario uses reduced assumptions with 25% implementation risk factor (75% success rate)",
+                parameters: {
+                    vinImprovement: 15,  // Lower time savings
+                    tinImprovement: 40,  // Lower time savings
+                    errorImprovement: 60, // Lower error reduction
+                    trainingImprovement: 20, // Lower training improvement
+                    appDevelopmentCost: 200000, // Higher costs
+                    complianceRisk: 15000, // Lower benefits
+                    misloadReduction: 75000, // Lower benefits
+                    itAdminSavings: 50000, // Lower benefits
+                    auditSavings: 10000, // Lower benefits
+                    trainingSavings: 8000 // Lower benefits
+                }
+            },
+            realistic: {
+                riskFactor: 1.0,
+                successRate: 0.85,
+                description: "📊 Realistic scenario uses industry-standard assumptions with 15% implementation risk factor (85% success rate)",
+                parameters: {
+                    vinImprovement: 33,  // Moderate time savings
+                    tinImprovement: 66,  // Moderate time savings
+                    errorImprovement: 87, // Moderate error reduction
+                    trainingImprovement: 40, // Moderate training improvement
+                    appDevelopmentCost: 150000, // Moderate costs
+                    complianceRisk: 25000, // Moderate benefits
+                    misloadReduction: 100000, // Moderate benefits
+                    itAdminSavings: 75000, // Moderate benefits
+                    auditSavings: 15000, // Moderate benefits
+                    trainingSavings: 12000 // Moderate benefits
+                }
+            },
+            optimistic: {
+                riskFactor: 1.3,
+                successRate: 0.95,
+                description: "🚀 Optimistic scenario uses best-case assumptions with 5% implementation risk factor (95% success rate)",
+                parameters: {
+                    vinImprovement: 55,  // Higher time savings
+                    tinImprovement: 80,  // Higher time savings
+                    errorImprovement: 87, // Same error reduction (already at max realistic)
+                    trainingImprovement: 50, // Higher training improvement
+                    appDevelopmentCost: 100000, // Lower costs
+                    complianceRisk: 40000, // Higher benefits
+                    misloadReduction: 150000, // Higher benefits
+                    itAdminSavings: 100000, // Higher benefits
+                    auditSavings: 25000, // Higher benefits
+                    trainingSavings: 18000 // Higher benefits
+                }
+            }
+        };
+
+        // Initialize calculators and charts
+        window.addEventListener('load', function() {
+            updateCalculations();
+            initializeCharts();
+        });
+
+        function setScenario(scenario) {
+            currentScenario = scenario;
+            
+            // Update tab appearance
+            document.querySelectorAll('.scenario-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update description
+            const config = scenarioConfig[scenario];
+            document.getElementById('scenario-description').innerHTML = 
+                `<div class="alert alert-warning">${config.description}</div>`;
+            
+            // Apply scenario-specific parameter values
+            applyScenarioParameters(scenario);
+            
+            updateCalculations();
+        }
+
+        function applyScenarioParameters(scenario) {
+            const config = scenarioConfig[scenario];
+            
+            // Check if this scenario has custom saved parameters
+            if (config.parameters) {
+                const params = config.parameters;
+                
+                // Apply the saved values for this scenario
+                document.getElementById('vinImprovement').value = params.vinImprovement;
+                document.getElementById('tinImprovement').value = params.tinImprovement;
+                document.getElementById('errorImprovement').value = params.errorImprovement;
+                document.getElementById('trainingImprovement').value = params.trainingImprovement;
+                document.getElementById('appDevelopmentCost').value = params.appDevelopmentCost;
+                document.getElementById('complianceRisk').value = params.complianceRisk;
+                document.getElementById('misloadReduction').value = params.misloadReduction;
+                document.getElementById('itAdminSavings').value = params.itAdminSavings;
+                document.getElementById('auditSavings').value = params.auditSavings;
+                document.getElementById('trainingSavings').value = params.trainingSavings;
+                
+                // Show dynamic feedback with actual applied values
+                const scenarioName = scenario.charAt(0).toUpperCase() + scenario.slice(1);
+                setTimeout(() => {
+                    alert(`${scenarioName} scenario parameters applied! Current values:\n` +
+                          `• VIN improvement: ${params.vinImprovement}%\n` +
+                          `• TIN improvement: ${params.tinImprovement}%\n` +
+                          `• Error reduction: ${params.errorImprovement}%\n` +
+                          `• App development cost: $${(params.appDevelopmentCost/1000)}K\n` +
+                          `• IT/Admin savings: $${(params.itAdminSavings/1000)}K\n` +
+                          `${config.parameters.isCustom ? '(Custom user-defined preset)' : '(Default preset)'}`);
+                }, 100);
+            } else {
+                // No saved parameters for this scenario - show message only
+                const scenarioName = scenario.charAt(0).toUpperCase() + scenario.slice(1);
+                setTimeout(() => {
+                    alert(`${scenarioName} scenario selected.\n\n` +
+                          `No custom parameters saved for this scenario yet.\n` +
+                          `Current parameter values will be used with ${scenarioName.toLowerCase()} risk factors.\n\n` +
+                          `To set custom defaults: adjust parameters and save to this scenario slot.`);
+                }, 100);
+            }
+        }
+
+        function updateCalculations() {
+            // Update operational values
+            document.getElementById('plantsValue').textContent = document.getElementById('plants').value;
+            document.getElementById('trailersPerDayValue').textContent = document.getElementById('trailersPerDay').value;
+            document.getElementById('tiresPerTrailerValue').textContent = document.getElementById('tiresPerTrailer').value;
+            document.getElementById('workingDaysValue').textContent = document.getElementById('workingDays').value;
+            document.getElementById('operatorWageValue').textContent = document.getElementById('operatorWage').value;
+
+            // Calculate current → future values from percentage improvements
+            const vinCurrent = 15; // seconds
+            const tinCurrent = 60; // seconds  
+            const errorCurrent = 8; // percent
+            const trainingCurrent = 5; // days
+
+            const vinImprovement = parseInt(document.getElementById('vinImprovement').value);
+            const tinImprovement = parseInt(document.getElementById('tinImprovement').value);
+            const errorImprovement = parseInt(document.getElementById('errorImprovement').value);
+            const trainingImprovement = parseInt(document.getElementById('trainingImprovement').value);
+
+            const vinFuture = Math.round(vinCurrent * (1 - vinImprovement / 100));
+            const tinFuture = Math.round(tinCurrent * (1 - tinImprovement / 100));
+            const errorFuture = Math.round(errorCurrent * (1 - errorImprovement / 100) * 10) / 10;
+            const trainingFuture = Math.round(trainingCurrent * (1 - trainingImprovement / 100) * 10) / 10;
+
+            // Update current → future displays
+            document.getElementById('vinCurrentValue').textContent = vinCurrent;
+            document.getElementById('vinFutureValue').textContent = vinFuture;
+            document.getElementById('vinImprovementValue').textContent = vinImprovement;
+            
+            document.getElementById('tinCurrentValue').textContent = tinCurrent;
+            document.getElementById('tinFutureValue').textContent = tinFuture;
+            document.getElementById('tinImprovementValue').textContent = tinImprovement;
+            
+            document.getElementById('errorCurrentValue').textContent = errorCurrent;
+            document.getElementById('errorFutureValue').textContent = errorFuture;
+            document.getElementById('errorImprovementValue').textContent = errorImprovement;
+            
+            document.getElementById('trainingCurrentValue').textContent = trainingCurrent;
+            document.getElementById('trainingFutureValue').textContent = trainingFuture;
+            document.getElementById('trainingImprovementValue').textContent = trainingImprovement;
+
+            // Update hardware and cost values
+            document.getElementById('zebraCostValue').textContent = Number(document.getElementById('zebraCost').value).toLocaleString();
+            document.getElementById('smartphoneCostValue').textContent = document.getElementById('smartphoneCost').value;
+            document.getElementById('devicesPerPlantValue').textContent = document.getElementById('devicesPerPlant').value;
+            document.getElementById('appDevelopmentCostValue').textContent = Math.round(document.getElementById('appDevelopmentCost').value / 1000) + 'K';
+            document.getElementById('complianceRiskValue').textContent = Math.round(document.getElementById('complianceRisk').value / 1000) + 'K';
+            document.getElementById('misloadReductionValue').textContent = Math.round(document.getElementById('misloadReduction').value / 1000) + 'K';
+            document.getElementById('itAdminSavingsValue').textContent = Math.round(document.getElementById('itAdminSavings').value / 1000) + 'K';
+            document.getElementById('auditSavingsValue').textContent = Math.round(document.getElementById('auditSavings').value / 1000) + 'K';
+            document.getElementById('annualHostingValue').textContent = Math.round(document.getElementById('annualHosting').value / 1000) + 'K';
+            document.getElementById('trainingSavingsValue').textContent = Math.round(document.getElementById('trainingSavings').value / 1000) + 'K';
+
+            const results = calculateROI();
+            updateUI(results);
+            updateCharts(results);
+        }
+
+        function calculateROI() {
+            // Get input values
+            const plants = parseInt(document.getElementById('plants').value);
+            const trailersPerDay = parseInt(document.getElementById('trailersPerDay').value);
+            const tiresPerTrailer = parseFloat(document.getElementById('tiresPerTrailer').value);
+            const workingDays = parseInt(document.getElementById('workingDays').value);
+            const operatorWage = parseInt(document.getElementById('operatorWage').value);
+            
+            // Calculate actual time savings from percentage improvements
+            const vinCurrent = 15; // seconds
+            const tinCurrent = 60; // seconds
+            const vinImprovement = parseInt(document.getElementById('vinImprovement').value);
+            const tinImprovement = parseInt(document.getElementById('tinImprovement').value);
+            const errorImprovement = parseInt(document.getElementById('errorImprovement').value);
+            
+            const vinTimeSaved = Math.round(vinCurrent * (vinImprovement / 100));
+            const tinTimeSaved = Math.round(tinCurrent * (tinImprovement / 100));
+            const errorReduction = Math.round(8 * (errorImprovement / 100) * 10) / 10; // 8% current error rate
+            const zebraCost = parseInt(document.getElementById('zebraCost').value);
+            const smartphoneCost = parseInt(document.getElementById('smartphoneCost').value);
+            const devicesPerPlant = parseInt(document.getElementById('devicesPerPlant').value);
+            const appDevelopmentCost = parseInt(document.getElementById('appDevelopmentCost').value);
+            const complianceRisk = parseInt(document.getElementById('complianceRisk').value);
+            const misloadReduction = parseInt(document.getElementById('misloadReduction').value);
+            const annualHosting = parseInt(document.getElementById('annualHosting').value);
+            const itAdminSavings = parseInt(document.getElementById('itAdminSavings').value);
+            const auditSavings = parseInt(document.getElementById('auditSavings').value);
+            const trainingSavings = parseInt(document.getElementById('trainingSavings').value);
+
+            // Apply scenario adjustments
+            const config = scenarioConfig[currentScenario];
+            const riskFactor = config.riskFactor;
+            const successRate = config.successRate;
+
+            // Calculate time savings
+            const timePerTrailer = vinTimeSaved + (tiresPerTrailer * tinTimeSaved); // seconds
+            const dailyTrailers = plants * trailersPerDay;
+            const dailyTimeSavings = (dailyTrailers * timePerTrailer) / 3600; // hours
+            const annualTimeSavings = dailyTimeSavings * workingDays;
+            const annualLaborSavings = annualTimeSavings * operatorWage * riskFactor;
+
+            // Calculate hardware costs
+            const totalZebraHardware = plants * devicesPerPlant * zebraCost;
+            const totalMobileHardware = plants * devicesPerPlant * smartphoneCost;
+            const hardwareSavings = totalZebraHardware - totalMobileHardware;
+
+            // Calculate 4-year totals
+            const fourYearLaborSavings = annualLaborSavings * 4;
+            const fourYearErrorSavings = misloadReduction * 4 * riskFactor;
+            const fourYearComplianceSavings = complianceRisk * 4 * riskFactor;
+            const fourYearItAdminSavings = itAdminSavings * 4 * riskFactor;
+            const fourYearAuditSavings = auditSavings * 4 * riskFactor;
+            const fourYearTrainingSavings = trainingSavings * 4 * riskFactor;
+            const fourYearHosting = annualHosting * 4;
+            const fourYearMaintenanceSavings = (totalZebraHardware * 0.15 * 4) - (totalMobileHardware * 0.05 * 4);
+
+            // Total costs and benefits
+            const totalImplementationCost = appDevelopmentCost + fourYearHosting + totalMobileHardware;
+            const totalBenefits = (fourYearLaborSavings + fourYearErrorSavings + fourYearComplianceSavings + 
+                                  fourYearItAdminSavings + fourYearAuditSavings + fourYearTrainingSavings + 
+                                  hardwareSavings + fourYearMaintenanceSavings) * successRate;
+            const netBenefit = totalBenefits - totalImplementationCost;
+            const roiPercent = Math.round((netBenefit / totalImplementationCost) * 100);
+            const paybackMonths = Math.round((totalImplementationCost / (annualLaborSavings / 12)) * 10) / 10;
+
+            // 3-Year NPV calculation
+            const discountRate = 0.1;
+            const year1Net = (totalBenefits * 0.4) - totalImplementationCost;
+            const year2Net = (totalBenefits * 0.85) - annualHosting;
+            const year3Net = totalBenefits - annualHosting;
+            
+            const threeYearNPV = year1Net / Math.pow(1 + discountRate, 1) + 
+                                year2Net / Math.pow(1 + discountRate, 2) + 
+                                year3Net / Math.pow(1 + discountRate, 3);
+
+            return {
+                plants,
+                totalBenefits,
+                totalImplementationCost,
+                netBenefit,
+                roiPercent,
+                paybackMonths,
+                successRate,
+                riskFactor,
+                threeYearNPV,
+                breakdown: {
+                    hardwareSavings,
+                    maintenanceSavings: fourYearMaintenanceSavings,
+                    laborSavings: fourYearLaborSavings,
+                    errorSavings: fourYearErrorSavings,
+                    complianceSavings: fourYearComplianceSavings,
+                    hosting: fourYearHosting,
+                    development: appDevelopmentCost
+                },
+                hardware: {
+                    totalZebraHardware,
+                    totalMobileHardware,
+                    zebraMaintenance: totalZebraHardware * 0.15 * 4,
+                    mobileMaintenance: totalMobileHardware * 0.05 * 4
+                },
+                timeAnalysis: {
+                    vinTimeSaved,
+                    tinSavingsPerTrailer: tiresPerTrailer * tinTimeSaved,
+                    totalTimePerTrailer: timePerTrailer,
+                    dailyPlantSavings: dailyTimeSavings / plants,
+                    dailyNetworkSavings: dailyTimeSavings,
+                    annualHoursSaved: annualTimeSavings
+                },
+                yearlyData: [
+                    { year: 'Year 1', benefits: totalBenefits * 0.4, costs: totalImplementationCost, net: year1Net },
+                    { year: 'Year 2', benefits: totalBenefits * 0.85, costs: annualHosting, net: year2Net },
+                    { year: 'Year 3', benefits: totalBenefits, costs: annualHosting, net: year3Net },
+                    { year: 'Year 4', benefits: totalBenefits, costs: annualHosting, net: totalBenefits - annualHosting }
+                ]
+            };
+        }
+
+        function updateUI(results) {
+            // Update summary metrics
+            document.getElementById('totalSavings').textContent = '$' + Math.round(results.netBenefit / 1000) + 'K';
+            document.getElementById('paybackPeriod').textContent = results.paybackMonths;
+            document.getElementById('roiPercent').textContent = results.roiPercent + '%';
+            document.getElementById('plantsImpacted').textContent = results.plants;
+
+            // Update cost comparison
+            document.getElementById('zebraHardware').textContent = '$' + results.hardware.totalZebraHardware.toLocaleString();
+            document.getElementById('mobileHardware').textContent = '$' + results.hardware.totalMobileHardware.toLocaleString();
+            document.getElementById('hardwareSavings').textContent = '$' + results.breakdown.hardwareSavings.toLocaleString();
+            document.getElementById('zebraMaintenance').textContent = '$' + Math.round(results.hardware.zebraMaintenance).toLocaleString();
+            document.getElementById('mobileMaintenance').textContent = '$' + Math.round(results.hardware.mobileMaintenance).toLocaleString();
+            document.getElementById('maintenanceSavings').textContent = '$' + Math.round(results.breakdown.maintenanceSavings).toLocaleString();
+            document.getElementById('laborSavings').textContent = '$' + Math.round(results.breakdown.laborSavings).toLocaleString();
+            document.getElementById('errorSavings').textContent = '$' + Math.round(results.breakdown.errorSavings).toLocaleString();
+            document.getElementById('complianceSavings').textContent = '$' + Math.round(results.breakdown.complianceSavings).toLocaleString();
+            document.getElementById('implementationCost').textContent = '($' + results.totalImplementationCost.toLocaleString() + ')';
+            document.getElementById('netBenefit').textContent = '$' + Math.round(results.netBenefit).toLocaleString();
+
+            // Update risk assessment
+            document.getElementById('successRate').textContent = Math.round(results.successRate * 100) + '%';
+            document.getElementById('riskFactor').textContent = results.riskFactor + 'x';
+            document.getElementById('currentScenario').textContent = currentScenario.charAt(0).toUpperCase() + currentScenario.slice(1);
+            document.getElementById('threeYearNPV').textContent = '$' + Math.round(results.threeYearNPV).toLocaleString();
+
+            // Update time analysis details
+            document.getElementById('vinSavingsDetail').textContent = results.timeAnalysis.vinTimeSaved + ' seconds';
+            document.getElementById('tinSavingsDetail').textContent = Math.round(results.timeAnalysis.tinSavingsPerTrailer) + ' seconds';
+            document.getElementById('totalTimePerTrailer').textContent = Math.round(results.timeAnalysis.totalTimePerTrailer) + ' seconds (' + Math.round(results.timeAnalysis.totalTimePerTrailer/60*10)/10 + ' minutes)';
+            document.getElementById('dailyPlantSavings').textContent = Math.round(results.timeAnalysis.dailyPlantSavings*10)/10 + ' hours';
+            document.getElementById('dailyNetworkSavings').textContent = Math.round(results.timeAnalysis.dailyNetworkSavings*10)/10 + ' hours';
+            document.getElementById('annualHoursSaved').textContent = Math.round(results.timeAnalysis.annualHoursSaved).toLocaleString() + ' hours';
+
+            // Show credibility warning if ROI is too high
+            const warning = document.getElementById('credibility-warning');
+            if (results.roiPercent > 500) {
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        function initializeCharts() {
+            // Benefits Chart
+            const benefitsCtx = document.getElementById('benefitsChart').getContext('2d');
+            benefitsChart = new Chart(benefitsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Labor Savings', 'Error Reduction', 'Hardware Savings', 'Compliance', 'Maintenance'],
+                    datasets: [{
+                        data: [225000, 400000, 72000, 100000, 57600],
+                        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Yearly Chart
+            const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
+            yearlyChart = new Chart(yearlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4'],
+                    datasets: [
+                        {
+                            label: 'Benefits',
+                            data: [300000, 500000, 600000, 600000],
+                            backgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'Costs',
+                            data: [250000, 25000, 25000, 25000],
+                            backgroundColor: '#ef4444'
+                        },
+                        {
+                            label: 'Net',
+                            data: [50000, 475000, 575000, 575000],
+                            backgroundColor: '#3b82f6'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(results) {
+            if (benefitsChart) {
+                benefitsChart.data.datasets[0].data = [
+                    results.breakdown.laborSavings,
+                    results.breakdown.errorSavings,
+                    results.breakdown.hardwareSavings,
+                    results.breakdown.complianceSavings,
+                    results.breakdown.maintenanceSavings
+                ];
+                benefitsChart.update();
+            }
+
+            if (yearlyChart) {
+                yearlyChart.data.datasets[0].data = results.yearlyData.map(y => y.benefits);
+                yearlyChart.data.datasets[1].data = results.yearlyData.map(y => y.costs);
+                yearlyChart.data.datasets[2].data = results.yearlyData.map(y => y.net);
+                yearlyChart.update();
+            }
+        }
+
+        function toggleExpand(header) {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span:last-child');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('active');
+                arrow.textContent = '▲';
+            }
+        }
+
+        function toggleSaveOptions() {
+            const saveToNamed = document.getElementById('saveToNamed').checked;
+            const namedOptions = document.getElementById('namedSaveOptions');
+            const slotOptions = document.getElementById('slotSaveOptions');
+            
+            if (saveToNamed) {
+                namedOptions.style.display = 'block';
+                slotOptions.style.display = 'none';
+            } else {
+                namedOptions.style.display = 'none';
+                slotOptions.style.display = 'block';
+            }
+        }
+
+        function saveScenario() {
+            const saveToNamed = document.getElementById('saveToNamed').checked;
+            
+            if (saveToNamed) {
+                saveNamedScenario();
+            } else {
+                saveToScenarioSlot();
+            }
+        }
+
+        function saveToScenarioSlot() {
+            const slotName = document.getElementById('scenarioSlot').value;
+            
+            const scenario = {
+                name: `${slotName.charAt(0).toUpperCase() + slotName.slice(1)} Preset`,
+                scenario: slotName,
+                plants: document.getElementById('plants').value,
+                trailersPerDay: document.getElementById('trailersPerDay').value,
+                tiresPerTrailer: document.getElementById('tiresPerTrailer').value,
+                workingDays: document.getElementById('workingDays').value,
+                operatorWage: document.getElementById('operatorWage').value,
+                vinImprovement: document.getElementById('vinImprovement').value,
+                tinImprovement: document.getElementById('tinImprovement').value,
+                errorImprovement: document.getElementById('errorImprovement').value,
+                trainingImprovement: document.getElementById('trainingImprovement').value,
+                zebraCost: document.getElementById('zebraCost').value,
+                smartphoneCost: document.getElementById('smartphoneCost').value,
+                devicesPerPlant: document.getElementById('devicesPerPlant').value,
+                appDevelopmentCost: document.getElementById('appDevelopmentCost').value,
+                complianceRisk: document.getElementById('complianceRisk').value,
+                misloadReduction: document.getElementById('misloadReduction').value,
+                itAdminSavings: document.getElementById('itAdminSavings').value,
+                auditSavings: document.getElementById('auditSavings').value,
+                trainingSavings: document.getElementById('trainingSavings').value,
+                annualHosting: document.getElementById('annualHosting').value,
+                savedAt: new Date().toLocaleDateString(),
+                savedTime: new Date().toLocaleTimeString()
+            };
+
+            // Save to scenario slot configuration
+            scenarioConfig[slotName].parameters = {
+                vinImprovement: parseInt(scenario.vinImprovement),
+                tinImprovement: parseInt(scenario.tinImprovement),
+                errorImprovement: parseInt(scenario.errorImprovement),
+                trainingImprovement: parseInt(scenario.trainingImprovement),
+                appDevelopmentCost: parseInt(scenario.appDevelopmentCost),
+                complianceRisk: parseInt(scenario.complianceRisk),
+                misloadReduction: parseInt(scenario.misloadReduction),
+                itAdminSavings: parseInt(scenario.itAdminSavings),
+                auditSavings: parseInt(scenario.auditSavings),
+                trainingSavings: parseInt(scenario.trainingSavings)
+            };
+
+            // Save to localStorage for persistence
+            localStorage.setItem('cartraScenarioSlots', JSON.stringify(scenarioConfig));
+            
+            closeSaveDialog();
+            alert(`Current parameters saved to ${slotName.charAt(0).toUpperCase() + slotName.slice(1)} scenario slot! This will now be the default when selecting ${slotName}.`);
+        }
+
+        function loadSavedScenario(scenario) {
+            if (savedScenarios[scenario]) {
+                const saved = savedScenarios[scenario];
+                
+                // Load all saved values
+                document.getElementById('plants').value = saved.plants;
+                document.getElementById('trailersPerDay').value = saved.trailersPerDay;
+                document.getElementById('tiresPerTrailer').value = saved.tiresPerTrailer;
+                document.getElementById('workingDays').value = saved.workingDays;
+                document.getElementById('operatorWage').value = saved.operatorWage;
+                document.getElementById('vinImprovement').value = saved.vinImprovement;
+                document.getElementById('tinImprovement').value = saved.tinImprovement;
+                document.getElementById('errorImprovement').value = saved.errorImprovement;
+                document.getElementById('trainingImprovement').value = saved.trainingImprovement;
+                document.getElementById('zebraCost').value = saved.zebraCost;
+                document.getElementById('smartphoneCost').value = saved.smartphoneCost;
+                document.getElementById('devicesPerPlant').value = saved.devicesPerPlant;
+                document.getElementById('appDevelopmentCost').value = saved.appDevelopmentCost;
+                document.getElementById('complianceRisk').value = saved.complianceRisk;
+                document.getElementById('misloadReduction').value = saved.misloadReduction;
+                document.getElementById('itAdminSavings').value = saved.itAdminSavings;
+                document.getElementById('auditSavings').value = saved.auditSavings;
+                document.getElementById('trainingSavings').value = saved.trainingSavings;
+                document.getElementById('annualHosting').value = saved.annualHosting;
+                
+                // Update scenario
+                currentScenario = saved.scenario;
+                document.querySelectorAll('.scenario-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Activate the correct scenario tab
+                const scenarioIndex = saved.scenario === 'conservative' ? 0 : saved.scenario === 'realistic' ? 1 : 2;
+                document.querySelectorAll('.scenario-tab')[scenarioIndex].classList.add('active');
+                
+                updateCalculations();
+                alert(`${saved.scenario.charAt(0).toUpperCase() + saved.scenario.slice(1)} scenario loaded successfully! (Saved: ${saved.savedAt})`);
+            }
+        }
+
+        function exportToPDF() {
+            const element = document.getElementById('calculator-content');
+            html2canvas(element).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                pdf.save(`Carry-On-ROI-Calculator-${currentScenario}-${new Date().toISOString().split('T')[0]}.pdf`);
+            });
+        }
+
+        function exportToExcel() {
+            const results = calculateROI();
+            const data = [
+                ['Carry-On Trailer Mobile Scanning ROI Calculator', ''],
+                ['Scenario', currentScenario.charAt(0).toUpperCase() + currentScenario.slice(1)],
+                ['Generated', new Date().toLocaleDateString()],
+                ['', ''],
+                ['Summary Results', ''],
+                ['Net 4-Year Savings', '$' + Math.round(results.netBenefit).toLocaleString()],
+                ['4-Year ROI', results.roiPercent + '%'],
+                ['Payback Period', results.paybackMonths + ' months'],
+                ['3-Year NPV', '$' + Math.round(results.threeYearNPV).toLocaleString()],
+                ['Implementation Success Rate', Math.round(results.successRate * 100) + '%'],
+                ['', ''],
+                ['Benefits Breakdown (4-Year)', ''],
+                ['Labor Savings', '$' + Math.round(results.breakdown.laborSavings).toLocaleString()],
+                ['Error Reduction', '$' + Math.round(results.breakdown.errorSavings).toLocaleString()],
+                ['Hardware Savings', '$' + Math.round(results.breakdown.hardwareSavings).toLocaleString()],
+                ['Compliance Risk Reduction', '$' + Math.round(results.breakdown.complianceSavings).toLocaleString()],
+                ['Maintenance Savings', '$' + Math.round(results.breakdown.maintenanceSavings).toLocaleString()],
+                ['', ''],
+                ['Implementation Costs', ''],
+                ['App Development', '$' + results.breakdown.development.toLocaleString()],
+                ['4-Year Hosting', '$' + results.breakdown.hosting.toLocaleString()],
+                ['Mobile Hardware', '$' + results.hardware.totalMobileHardware.toLocaleString()]
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'ROI Analysis');
+            XLSX.writeFile(wb, `Carry-On-ROI-Calculator-${currentScenario}-${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function setBaselineScenario() {
+            if (confirm('Set baseline "no change" scenario? This shows staying with current process - no mobile implementation at all.')) {
+                // Keep operational parameters at current defaults
+                document.getElementById('plants').value = 6;
+                document.getElementById('trailersPerDay').value = 50;
+                document.getElementById('tiresPerTrailer').value = 2.5;
+                document.getElementById('workingDays').value = 250;
+                document.getElementById('operatorWage').value = 25;
+                
+                // TRUE NO CHANGE: Zero percentage improvements (staying with current process)
+                document.getElementById('vinImprovement').value = 0; // ZERO - no improvement
+                document.getElementById('tinImprovement').value = 0; // ZERO - no improvement
+                document.getElementById('errorImprovement').value = 0; // ZERO - no improvement
+                document.getElementById('trainingImprovement').value = 0; // ZERO - no improvement
+                
+                // NO CHANGE: Same hardware costs (no savings)
+                document.getElementById('zebraCost').value = 1800;
+                document.getElementById('smartphoneCost').value = 1800; // SAME as Zebra = no hardware savings
+                document.getElementById('devicesPerPlant').value = 10;
+                document.getElementById('appDevelopmentCost').value = 300000; // Max cost to show worst case
+                
+                // NO CHANGE: All benefits to minimum
+                document.getElementById('complianceRisk').value = 10000; // Minimum
+                document.getElementById('misloadReduction').value = 25000; // Minimum
+                document.getElementById('itAdminSavings').value = 25000; // Minimum
+                document.getElementById('auditSavings').value = 5000; // Minimum
+                document.getElementById('annualHosting').value = 50000; // Maximum cost
+                document.getElementById('trainingSavings').value = 5000; // Minimum
+                
+                // Set to conservative scenario for baseline
+                currentScenario = 'conservative';
+                document.querySelectorAll('.scenario-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector('.scenario-tab:nth-child(1)').classList.add('active');
+                
+                // Update scenario description
+                const config = scenarioConfig[currentScenario];
+                document.getElementById('scenario-description').innerHTML = 
+                    `<div class="alert alert-warning">${config.description}</div>`;
+                
+                updateCalculations();
+                
+                alert('True baseline "no change" scenario set. This shows staying with current process vs implementing mobile solution. Should show negative ROI due to implementation costs with minimal benefits.');
+            }
+        }
+
+        function resetCalculator() {
+            if (confirm('Reset calculator to default values? This will lose any unsaved changes.')) {
+                // Reset all inputs to defaults
+                document.getElementById('plants').value = 6;
+                document.getElementById('trailersPerDay').value = 50;
+                document.getElementById('tiresPerTrailer').value = 2.5;
+                document.getElementById('workingDays').value = 250;
+                document.getElementById('operatorWage').value = 25;
+                document.getElementById('vinTimeSaved').value = 10;
+                document.getElementById('tinTimeSaved').value = 40;
+                document.getElementById('errorReduction').value = 8;
+                document.getElementById('zebraCost').value = 1800;
+                document.getElementById('smartphoneCost').value = 600;
+                document.getElementById('devicesPerPlant').value = 10;
+                document.getElementById('appDevelopmentCost').value = 150000;
+                document.getElementById('complianceRisk').value = 25000;
+                document.getElementById('misloadReduction').value = 100000;
+                document.getElementById('annualHosting').value = 25000;
+                
+                // Reset scenario to realistic
+                currentScenario = 'realistic';
+                document.querySelectorAll('.scenario-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector('.scenario-tab:nth-child(2)').classList.add('active');
+                
+                updateCalculations();
+            }
+        }
+
+        // Save/Load Dialog Functions
+        function showSaveDialog() {
+            document.getElementById('saveModal').style.display = 'block';
+            document.getElementById('scenarioName').focus();
+        }
+
+        function closeSaveDialog() {
+            document.getElementById('saveModal').style.display = 'none';
+            document.getElementById('scenarioName').value = '';
+        }
+
+        function saveNamedScenario() {
+            const name = document.getElementById('scenarioName').value.trim();
+            if (!name) {
+                alert('Please enter a scenario name.');
+                return;
+            }
+
+            const scenario = {
+                name: name,
+                scenario: currentScenario,
+                plants: document.getElementById('plants').value,
+                trailersPerDay: document.getElementById('trailersPerDay').value,
+                tiresPerTrailer: document.getElementById('tiresPerTrailer').value,
+                workingDays: document.getElementById('workingDays').value,
+                operatorWage: document.getElementById('operatorWage').value,
+                vinImprovement: document.getElementById('vinImprovement').value,
+                tinImprovement: document.getElementById('tinImprovement').value,
+                errorImprovement: document.getElementById('errorImprovement').value,
+                trainingImprovement: document.getElementById('trainingImprovement').value,
+                zebraCost: document.getElementById('zebraCost').value,
+                smartphoneCost: document.getElementById('smartphoneCost').value,
+                devicesPerPlant: document.getElementById('devicesPerPlant').value,
+                appDevelopmentCost: document.getElementById('appDevelopmentCost').value,
+                complianceRisk: document.getElementById('complianceRisk').value,
+                misloadReduction: document.getElementById('misloadReduction').value,
+                itAdminSavings: document.getElementById('itAdminSavings').value,
+                auditSavings: document.getElementById('auditSavings').value,
+                trainingSavings: document.getElementById('trainingSavings').value,
+                annualHosting: document.getElementById('annualHosting').value,
+                savedAt: new Date().toLocaleDateString(),
+                savedTime: new Date().toLocaleTimeString()
+            };
+
+            // Load existing scenarios
+            const existingScenarios = JSON.parse(localStorage.getItem('cartraNamedScenarios') || '{}');
+            existingScenarios[name] = scenario;
+            localStorage.setItem('cartraNamedScenarios', JSON.stringify(existingScenarios));
+
+            closeSaveDialog();
+            alert(`Scenario "${name}" saved successfully!`);
+        }
+
+        function showLoadDialog() {
+            const existingScenarios = JSON.parse(localStorage.getItem('cartraNamedScenarios') || '{}');
+            const scenariosList = document.getElementById('savedScenariosList');
+            
+            if (Object.keys(existingScenarios).length === 0) {
+                scenariosList.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No saved scenarios found.</p>';
+            } else {
+                let html = '';
+                for (const [name, scenario] of Object.entries(existingScenarios)) {
+                    html += `
+                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <strong>${name}</strong>
+                                    <div style="font-size: 0.875rem; color: #6b7280;">
+                                        ${scenario.scenario.charAt(0).toUpperCase() + scenario.scenario.slice(1)} scenario • 
+                                        Saved: ${scenario.savedAt} ${scenario.savedTime}
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-outline" onclick="loadNamedScenario('${name}')" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Load</button>
+                                    <button class="btn btn-outline" onclick="deleteNamedScenario('${name}')" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; color: #ef4444; border-color: #ef4444;">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                scenariosList.innerHTML = html;
+            }
+            
+            document.getElementById('loadModal').style.display = 'block';
+        }
+
+        function closeLoadDialog() {
+            document.getElementById('loadModal').style.display = 'none';
+        }
+
+        function loadNamedScenario(name) {
+            const existingScenarios = JSON.parse(localStorage.getItem('cartraNamedScenarios') || '{}');
+            const scenario = existingScenarios[name];
+            
+            if (scenario) {
+                // Load all saved values
+                document.getElementById('plants').value = scenario.plants;
+                document.getElementById('trailersPerDay').value = scenario.trailersPerDay;
+                document.getElementById('tiresPerTrailer').value = scenario.tiresPerTrailer;
+                document.getElementById('workingDays').value = scenario.workingDays;
+                document.getElementById('operatorWage').value = scenario.operatorWage;
+                document.getElementById('vinImprovement').value = scenario.vinImprovement;
+                document.getElementById('tinImprovement').value = scenario.tinImprovement;
+                document.getElementById('errorImprovement').value = scenario.errorImprovement;
+                document.getElementById('trainingImprovement').value = scenario.trainingImprovement;
+                document.getElementById('zebraCost').value = scenario.zebraCost;
+                document.getElementById('smartphoneCost').value = scenario.smartphoneCost;
+                document.getElementById('devicesPerPlant').value = scenario.devicesPerPlant;
+                document.getElementById('appDevelopmentCost').value = scenario.appDevelopmentCost;
+                document.getElementById('complianceRisk').value = scenario.complianceRisk;
+                document.getElementById('misloadReduction').value = scenario.misloadReduction;
+                document.getElementById('itAdminSavings').value = scenario.itAdminSavings;
+                document.getElementById('auditSavings').value = scenario.auditSavings;
+                document.getElementById('trainingSavings').value = scenario.trainingSavings;
+                document.getElementById('annualHosting').value = scenario.annualHosting;
+                
+                // Update scenario tab
+                currentScenario = scenario.scenario;
+                document.querySelectorAll('.scenario-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                const scenarioIndex = scenario.scenario === 'conservative' ? 0 : scenario.scenario === 'realistic' ? 1 : 2;
+                document.querySelectorAll('.scenario-tab')[scenarioIndex].classList.add('active');
+                
+                // Update scenario description
+                const config = scenarioConfig[scenario.scenario];
+                document.getElementById('scenario-description').innerHTML = 
+                    `<div class="alert alert-warning">${config.description}</div>`;
+                
+                updateCalculations();
+                closeLoadDialog();
+                alert(`Scenario "${name}" loaded successfully!`);
+            }
+        }
+
+        function deleteNamedScenario(name) {
+            if (confirm(`Are you sure you want to delete the scenario "${name}"?`)) {
+                const existingScenarios = JSON.parse(localStorage.getItem('cartraNamedScenarios') || '{}');
+                delete existingScenarios[name];
+                localStorage.setItem('cartraNamedScenarios', JSON.stringify(existingScenarios));
+                showLoadDialog(); // Refresh the list
+                alert(`Scenario "${name}" deleted successfully!`);
+            }
+        }
+
+        function clearAllScenarios() {
+            if (confirm('Are you sure you want to delete ALL saved scenarios? This action cannot be undone.')) {
+                localStorage.removeItem('cartraNamedScenarios');
+                showLoadDialog(); // Refresh the list
+                alert('All scenarios deleted successfully!');
+            }
+        }
+
+        // Allow Enter key to save in the name input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('scenarioName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveNamedScenario();
+                }
+            });
+        });
+
+        // Format currency helper
+        function formatCurrency(amount) {
+            return Math.round(amount).toLocaleString();
+        }
+    </script>
+</body>
+</html>
