@@ -912,8 +912,10 @@ function setScenario(scenario) {
 // ---- Stepper Buttons ----
 function step(id, amount) {
     const input = $(id);
-    const min = parseFloat(input.min) || -Infinity;
-    const max = parseFloat(input.max) || Infinity;
+    const minParsed = parseFloat(input.min);
+    const maxParsed = parseFloat(input.max);
+    const min = Number.isFinite(minParsed) ? minParsed : -Infinity;
+    const max = Number.isFinite(maxParsed) ? maxParsed : Infinity;
     const stepAttr = parseFloat(input.step) || 1;
     let newVal = parseNumeric(input.value) + amount;
     newVal = Math.max(min, Math.min(max, newVal));
