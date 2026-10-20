@@ -1,0 +1,141 @@
+
+```json
+{
+  "executive_summary_kpis": [
+    {
+      "key": "total_net_annual_value",
+      "source_field": "totalNetAnnualValue",
+      "description": "Total projected annual value from all logistics and commercial programs, net of platform costs.",
+      "display_context": "Board View: Primary KPI"
+    },
+    {
+      "key": "payback_period_months",
+      "source_field": "paybackMonths",
+      "description": "Months required for annual net value to recover the one-time implementation cost.",
+      "display_context": "Board View: Primary KPI"
+    },
+    {
+      "key": "five_year_roi_pct",
+      "source_field": "totalROI5year",
+      "description": "5-year ROI based on total net annual value against the total 5-year investment.",
+      "display_context": "Board View: Primary KPI"
+    },
+    {
+      "key": "five_year_npv",
+      "source_field": "netPresentValue5year",
+      "description": "Net Present Value of the 5-year cash flows, discounted at the weighted average cost of capital (WACC).",
+      "display_context": "Board View: Primary KPI"
+    }
+  ],
+  "logistics_and_fulfillment_kpis": {
+    "title": "Logistics & Fulfillment Performance",
+    "metrics": [
+      {
+        "key": "current_annual_freight_spend",
+        "source_field": "currentAnnualFreightSpend",
+        "description": "Current total annual spend on freight and transportation.",
+        "display_context": "Logistics View: Cost Baseline"
+      },
+      {
+        "key": "projected_annual_freight_spend",
+        "source_field": "projectedAnnualFreightSpend",
+        "description": "Projected total annual spend on freight after improvements.",
+        "display_context": "Logistics View: Cost Projection"
+      },
+      {
+        "key": "annual_freight_savings",
+        "source_field": "annualFreightSavings",
+        "description": "Gross annual savings from logistics improvements, before platform costs.",
+        "display_context": "Logistics View: Value Driver"
+      },
+      {
+        "key": "truckloads_eliminated_annual",
+        "source_field": "truckloadsEliminated",
+        "description": "Annual reduction in truckloads from improved capacity utilization.",
+        "display_context": "Logistics View: Operational Impact"
+      },
+      {
+        "key": "avg_capacity_utilization_pct",
+        "source_field": "avgCapacityUtilizationPct",
+        "description": "Average percentage of truck capacity used per load, current vs. projected.",
+        "display_context": "Logistics View: Core Metric"
+      }
+    ]
+  },
+  "commercial_and_channel_kpis": {
+    "title": "Commercial & Channel Performance",
+    "metrics": [
+      {
+        "key": "total_commercial_program_value",
+        "source_field": "totalCommercialProgramValue",
+        "description": "Total gross annual value from all commercial programs (dealer recruitment, channel growth, service efficiency).",
+        "display_context": "Commercial View: Total Value"
+      },
+      {
+        "key": "new_dealer_recruitment_value",
+        "source_field": "newDealerRecruitmentValue",
+        "description": "Annual revenue contribution from newly onboarded dealers.",
+        "display_context": "Commercial View: Growth Driver"
+      },
+      {
+        "key": "dealer_wallet_share_growth_value",
+        "source_field": "shareOfWalletGrowthValue",
+        "description": "Projected increase in revenue from existing dealers by capturing a larger share of their total trailer and parts business.",
+        "display_context": "Commercial View: Growth Driver"
+      },
+      {
+        "key": "dealer_churn_reduction_value",
+        "source_field": "dealerChurnReductionValue",
+        "description": "Value of revenue retained by reducing the annual rate of dealer churn.",
+        "display_context": "Commercial View: Risk Mitigation"
+      }
+    ]
+  },
+  "parts_and_service_kpis": {
+    "title": "Parts & Service Performance",
+    "metrics": [
+      {
+        "key": "current_parts_and_service_revenue",
+        "source_field": "currentPartsAndServiceRevenue",
+        "description": "Current annual revenue from the parts and service business line.",
+        "display_context": "Service View: Revenue Baseline"
+      },
+      {
+        "key": "projected_parts_and_service_revenue",
+        "source_field": "projectedPartsAndServiceRevenue",
+        "description": "Projected annual revenue from parts and service after improvements.",
+        "display_context": "Service View: Revenue Projection"
+      },
+      {
+        "key": "warranty_claim_processing_cost_reduction",
+        "source_field": "warrantyCostReduction",
+        "description": "Annual savings from improved efficiency in processing warranty claims.",
+        "display_context": "Service View: Cost Savings"
+      },
+      {
+        "key": "service_technician_utilization_pct",
+        "source_field": "serviceTechnicianUtilizationPct",
+        "description": "Measures the productivity and billable hours of the service technician workforce (billable hours as a % of available hours).",
+        "display_context": "Service View: Operational Metric"
+      }
+    ]
+  },
+  "financial_summary_and_projections": {
+    "title": "Financial Summary & Projections",
+    "metrics": [
+      {
+        "key": "five_year_cash_flow_projection",
+        "source_field": "fiveYearCashFlow",
+        "description": "A 5-year projection of cash flows, showing the transition from investment to value realization.",
+        "display_context": "Finance View: Projection"
+      },
+      {
+        "key": "risk_adjusted_net_value",
+        "source_field": "riskAdjustedNetValue",
+        "description": "Net annual value assuming only a percentage (e.g., 50%) of projected savings and value are realized.",
+        "display_context": "Finance View: Sensitivity Analysis"
+      }
+    ]
+  }
+}
+```

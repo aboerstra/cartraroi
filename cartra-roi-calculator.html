@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carry-On Trailer - Mobile Scanning ROI Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .export-buttons {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .export-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #0056b3;
+        }
+
+        .roi-summary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .roi-summary h3 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .roi-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .content-section {
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom-color: #007bff;
+            color: #007bff;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .variables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .variable-group {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .variable-group h4 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .benefit-positive {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .cost-negative {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .expandable-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .expandable-header:hover {
+            background: #e9ecef;
+        }
+
+        .expandable-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .expandable-content.active {
+            display: block;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 30px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            line-height: 260px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .roi-metrics {
+                grid-template-columns: 1fr;
+            }
+            
+            .variables-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Carry-On Trailer</h1>
+            <h2>Mobile Scanning ROI Calculator</h2>
+            <p class="subtitle">Interactive business case for implementing smartphone-based scanning vs. Zebra hardware across Carry-On's manufacturing network</p>
+        </div>
+
+        <div class="main-content">
+            <div class="export-buttons">
+                <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
+                <button class="export-btn" onclick="exportToPDF()">Export to PDF</button>
+                <button class="export-btn" onclick="saveScenario()">Save Scenario</button>
+                <button class="export-btn" onclick="loadScenario()">Load Scenario</button>
+            </div>
+
+            <div class="roi-summary">
+                <h3>4-Year ROI Summary</h3>
+                <p>System-wide benefits across all manufacturing plants</p>
+                <div class="roi-metrics">
+                    <div class="metric">
+                        <div class="metric-value" id="totalSavings">$594K</div>
+                        <div class="metric-label">Net 4-Year Savings</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="paybackPeriod">11</div>
+                        <div class="metric-label">Payback Period (months)</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="roiPercent">340%</div>
+                        <div class="metric-label">4-Year ROI</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="plantsImpacted">6</div>
+                        <div class="metric-label">Plants Impacted</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab(event, 'variables')">ROI Variables</div>
+                    <div class="tab" onclick="showTab(event, 'comparison')">Cost Comparison</div>
+                    <div class="tab" onclick="showTab(event, 'benefits')">Benefits Analysis</div>
+                    <div class="tab" onclick="showTab(event, 'timeline')">Implementation</div>
+                </div>
+
+                <div id="variables" class="tab-content active">
+                    <h3>Adjust Variables to Model Your Scenario</h3>
+                    <div class="variables-grid">
+                        <div class="variable-group">
+                            <h4>Manufacturing Operations</h4>
+                            <div class="form-group">
+                                <label for="plants">Number of Plants</label>
+                                <input type="number" id="plants" value="6" min="1" max="20" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="trailersPerDay">Trailers per Plant/Day</label>
+                                <input type="number" id="trailersPerDay" value="50" min="10" max="200" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="tiresPerTrailer">Tires per Trailer (avg)</label>
+                                <input type="number" id="tiresPerTrailer" value="2.5" min="2" max="8" step="0.5" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="workingDays">Working Days/Year</label>
+                                <input type="number" id="workingDays" value="250" min="200" max="300" onchange="calculateROI()">
+                            </div>
+                        </div>
+
+                        <div class="variable-group">
+                            <h4>Labor & Efficiency</h4>
+                            <div class="form-group">
+                                <label for="operatorWage">Operator Wage ($/hour loaded)</label>
+                                <input type="number" id="operatorWage" value="25" min="15" max="50" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="vinTimeSaved">VIN Scan Time Saved (seconds)</label>
+                                <input type="number" id="vinTimeSaved" value="10" min="5" max="30" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="tinTimeSaved">TIN Capture Time Saved (seconds)</label>
+                                <input type="number" id="tinTimeSaved" value="40" min="20" max="120" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="errorReduction">Error Rate Reduction (%)</label>
+                                <input type="number" id="errorReduction" value="8" min="1" max="15" step="0.5" onchange="calculateROI()">
+                            </div>
+                        </div>
+
+                        <div class="variable-group">
+                            <h4>Hardware Costs</h4>
+                            <div class="form-group">
+                                <label for="zebraCost">Zebra Device Cost ($)</label>
+                                <input type="number" id="zebraCost" value="1800" min="1000" max="3000" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="smartphoneCost">Smartphone Cost ($)</label>
+                                <input type="number" id="smartphoneCost" value="600" min="300" max="1200" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="devicesPerPlant">Devices per Plant</label>
+                                <input type="number" id="devicesPerPlant" value="10" min="5" max="25" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="appDevelopmentCost">App Development Cost ($)</label>
+                                <input type="number" id="appDevelopmentCost" value="150000" min="75000" max="300000" onchange="calculateROI()">
+                            </div>
+                        </div>
+
+                        <div class="variable-group">
+                            <h4>Risk & Compliance</h4>
+                            <div class="form-group">
+                                <label for="complianceRisk">Annual Compliance Risk Reduction ($)</label>
+                                <input type="number" id="complianceRisk" value="25000" min="10000" max="100000" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="misloadReduction">Annual Misload Reduction ($)</label>
+                                <input type="number" id="misloadReduction" value="100000" min="25000" max="250000" onchange="calculateROI()">
+                            </div>
+                            <div class="form-group">
+                                <label for="annualHosting">Annual Hosting/Support ($)</label>
+                                <input type="number" id="annualHosting" value="25000" min="10000" max="50000" onchange="calculateROI()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="comparison" class="tab-content">
+                    <h3>4-Year Cost Comparison: Zebra vs Mobile App</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Zebra Hardware Path</th>
+                                <th>Mobile App Path</th>
+                                <th>Net Difference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hardware Investment</strong></td>
+                                <td class="cost-negative" id="zebraHardwareCost">$108,000</td>
+                                <td class="cost-negative" id="mobileHardwareCost">$36,000</td>
+                                <td class="benefit-positive" id="hardwareSavings">$72,000</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maintenance (4 years)</strong></td>
+                                <td class="cost-negative" id="zebraMaintenance">$72,000</td>
+                                <td class="cost-negative" id="mobileMaintenance">$12,000</td>
+                                <td class="benefit-positive" id="maintenanceSavings">$60,000</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Labor Savings (4 years)</strong></td>
+                                <td>$0</td>
+                                <td class="benefit-positive" id="laborSavings">$224,000</td>
+                                <td class="benefit-positive" id="laborSavings2">$224,000</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Error Reduction (4 years)</strong></td>
+                                <td>$0</td>
+                                <td class="benefit-positive" id="errorSavings">$400,000</td>
+                                <td class="benefit-positive" id="errorSavings2">$400,000</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Compliance Risk (4 years)</strong></td>
+                                <td>$0</td>
+                                <td class="benefit-positive" id="complianceSavings">$100,000</td>
+                                <td class="benefit-positive" id="complianceSavings2">$100,000</td>
+                            </tr>
+                            <tr>
+                                <td><strong>App Development</strong></td>
+                                <td>$0</td>
+                                <td class="cost-negative" id="devCost">$150,000</td>
+                                <td class="cost-negative" id="devCost2">($150,000)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hosting (4 years)</strong></td>
+                                <td>$0</td>
+                                <td class="cost-negative" id="hostingCost">$100,000</td>
+                                <td class="cost-negative" id="hostingCost2">($100,000)</td>
+                            </tr>
+                            <tr style="border-top: 2px solid #007bff; font-weight: bold;">
+                                <td><strong>Total 4-Year Impact</strong></td>
+                                <td class="cost-negative" id="zebraTotal">$180,000</td>
+                                <td class="benefit-positive" id="mobileTotal">$498,000</td>
+                                <td class="benefit-positive" id="netBenefit">$594,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="benefits" class="tab-content">
+                    <h3>Benefits Analysis</h3>
+                    
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleSection(this)">
+                            <span>Time & Efficiency Savings</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Per Trailer Time Savings:</strong></p>
+                            <ul>
+                                <li>VIN Scanning: <span id="vinSavingsDetail">10 seconds</span> per trailer</li>
+                                <li>TIN Capture: <span id="tinSavingsDetail">100 seconds</span> per trailer (2.5 tires × 40s)</li>
+                                <li>Total per trailer: <span id="totalTimePerTrailer">110 seconds (1.8 minutes)</span></li>
+                            </ul>
+                            <p><strong>Daily Savings Across Network:</strong></p>
+                            <ul>
+                                <li>Per plant: <span id="dailyPlantSavings">1.5 hours</span></li>
+                                <li>All plants: <span id="dailyNetworkSavings">9 hours</span></li>
+                                <li>Annual network: <span id="annualHoursSaved">2,250 hours</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleSection(this)">
+                            <span>Data Quality Improvements</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Error Reduction Impact:</strong></p>
+                            <ul>
+                                <li>TIN transcription errors reduced from 5-10% to &lt;1%</li>
+                                <li>Automatic photo evidence attached to every record</li>
+                                <li>Real-time validation prevents downstream issues</li>
+                                <li>Improved warranty claim verification speed</li>
+                            </ul>
+                            <p><strong>Compliance Benefits:</strong></p>
+                            <ul>
+                                <li>NHTSA recall readiness: Immediate VIN-TIN lookup</li>
+                                <li>Audit preparation time reduced by 60-70%</li>
+                                <li>Digital traceability chain maintains compliance</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleSection(this)">
+                            <span>Strategic Value Drivers</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Operational Excellence:</strong></p>
+                            <ul>
+                                <li>Reduced employee training time (30-50% faster onboarding)</li>
+                                <li>Standardized process across all ATW brands</li>
+                                <li>Scalable to PJ Trailers and Big Tex operations</li>
+                                <li>Future-ready platform for AI enhancements</li>
+                            </ul>
+                            <p><strong>Competitive Advantage:</strong></p>
+                            <ul>
+                                <li>Digital traceability differentiator</li>
+                                <li>Enhanced dealer confidence through verified data</li>
+                                <li>Improved customer satisfaction via faster issue resolution</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div>ROI Progression Chart</div>
+                        <div style="font-size: 14px; color: #888;">Interactive chart showing cumulative savings over 4 years</div>
+                    </div>
+                </div>
+
+                <div id="timeline" class="tab-content">
+                    <h3>Implementation Timeline & Milestones</h3>
+                    
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleSection(this)">
+                            <span>Phase 1: Development & Pilot (Months 1-4)</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Deliverables:</strong></p>
+                            <ul>
+                                <li>Mobile app development with AI/OCR capabilities</li>
+                                <li>Azure integration setup</li>
+                                <li>Sugar CRM API enhancements</li>
+                                <li>Pilot deployment at 1-2 plants</li>
+                                <li>User acceptance testing</li>
+                            </ul>
+                            <p><strong>Investment: $100,000</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleSection(this)">
+                            <span>Phase 2: Full Deployment (Months 5-8)</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Deliverables:</strong></p>
+                            <ul>
+                                <li>Rollout to all 6 plants</li>
+                                <li>Staff training and change management</li>
+                                <li>Hardware procurement and setup</li>
+                                <li>Process optimization based on pilot feedback</li>
+                                <li>Integration with existing workflows</li>
+                            </ul>
+                            <p><strong>Investment: $50,000</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleSection(this)">
+                            <span>Phase 3: Optimization & Scale (Months 9-12)</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <p><strong>Deliverables:</strong></p>
+                            <ul>
+                                <li>Performance monitoring and analytics</li>
+                                <li>Advanced AI/ML feature deployment</li>
+                                <li>ATW brand expansion planning</li>
+                                <li>Continuous improvement implementation</li>
+                                <li>ROI measurement and reporting</li>
+                            </ul>
+                            <p><strong>Payback Achievement: Month 11</strong></p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; padding: 20px; background: #e8f5e8; border-radius: 8px;">
+                        <h4>Key Success Metrics</h4>
+                        <ul>
+                            <li><strong>Month 3:</strong> Pilot shows 60%+ time savings</li>
+                            <li><strong>Month 6:</strong> 50%+ error reduction achieved</li>
+                            <li><strong>Month 9:</strong> Full network deployment complete</li>
+                            <li><strong>Month 11:</strong> Break-even point reached</li>
+                            <li><strong>Year 2+:</strong> Expansion to PJ Trailers and Big Tex</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateROI() {
+            // Get input values
+            const plants = parseInt(document.getElementById('plants').value);
+            const trailersPerDay = parseInt(document.getElementById('trailersPerDay').value);
+            const tiresPerTrailer = parseFloat(document.getElementById('tiresPerTrailer').value);
+            const workingDays = parseInt(document.getElementById('workingDays').value);
+            const operatorWage = parseInt(document.getElementById('operatorWage').value);
+            const vinTimeSaved = parseInt(document.getElementById('vinTimeSaved').value);
+            const tinTimeSaved = parseInt(document.getElementById('tinTimeSaved').value);
+            const errorReduction = parseFloat(document.getElementById('errorReduction').value);
+            const zebraCost = parseInt(document.getElementById('zebraCost').value);
+            const smartphoneCost = parseInt(document.getElementById('smartphoneCost').value);
+            const devicesPerPlant = parseInt(document.getElementById('devicesPerPlant').value);
+            const appDevelopmentCost = parseInt(document.getElementById('appDevelopmentCost').value);
+            const complianceRisk = parseInt(document.getElementById('complianceRisk').value);
+            const misloadReduction = parseInt(document.getElementById('misloadReduction').value);
+            const annualHosting = parseInt(document.getElementById('annualHosting').value);
+
+            // Calculate time savings
+            const timePerTrailer = vinTimeSaved + (tiresPerTrailer * tinTimeSaved); // seconds
+            const dailyTrailers = plants * trailersPerDay;
+            const dailyTimeSavings = (dailyTrailers * timePerTrailer) / 3600; // hours
+            const annualTimeSavings = dailyTimeSavings * workingDays;
+            const annualLaborSavings = annualTimeSavings * operatorWage;
+
+            // Calculate hardware costs
+            const totalZebraHardware = plants * devicesPerPlant * zebraCost;
+            const totalMobileHardware = plants * devicesPerPlant * smartphoneCost;
+            const hardwareSavings = totalZebraHardware - totalMobileHardware;
+
+            // Calculate 4-year totals
+            const fourYearLaborSavings = annualLaborSavings * 4;
+            const fourYearErrorSavings = misloadReduction * 4;
+            const fourYearComplianceSavings = complianceRisk * 4;
+            const fourYearHosting = annualHosting * 4;
+            const fourYearMaintenanceSavings = (totalZebraHardware * 0.15 * 4) - (totalMobileHardware * 0.05 * 4);
+
+            // Total costs and benefits
+            const totalImplementationCost = appDevelopmentCost + fourYearHosting + totalMobileHardware;
+            const totalBenefits = fourYearLaborSavings + fourYearErrorSavings + fourYearComplianceSavings + hardwareSavings + fourYearMaintenanceSavings;
+            const netBenefit = totalBenefits - totalImplementationCost;
+            const roiPercent = Math.round((netBenefit / totalImplementationCost) * 100);
+            const paybackMonths = Math.round((totalImplementationCost / (annualLaborSavings / 12)) * 10) / 10;
+
+            // Update summary metrics
+            document.getElementById('totalSavings').textContent = '$' + Math.round(netBenefit / 1000) + 'K';
+            document.getElementById('paybackPeriod').textContent = paybackMonths;
+            document.getElementById('roiPercent').textContent = roiPercent + '%';
+            document.getElementById('plantsImpacted').textContent = plants;
+
+            // Update comparison table
+            document.getElementById('zebraHardwareCost').textContent = '$' + totalZebraHardware.toLocaleString();
+            document.getElementById('mobileHardwareCost').textContent = '$' + totalMobileHardware.toLocaleString();
+            document.getElementById('hardwareSavings').textContent = '$' + hardwareSavings.toLocaleString();
+            document.getElementById('zebraMaintenance').textContent = '$' + Math.round(totalZebraHardware * 0.15 * 4).toLocaleString();
+            document.getElementById('mobileMaintenance').textContent = '$' + Math.round(totalMobileHardware * 0.05 * 4).toLocaleString();
+            document.getElementById('maintenanceSavings').textContent = '$' + Math.round(fourYearMaintenanceSavings).toLocaleString();
+            document.getElementById('laborSavings').textContent = '$' + fourYearLaborSavings.toLocaleString();
+            document.getElementById('laborSavings2').textContent = '$' + fourYearLaborSavings.toLocaleString();
+            document.getElementById('errorSavings').textContent = '$' + fourYearErrorSavings.toLocaleString();
+            document.getElementById('errorSavings2').textContent = '$' + fourYearErrorSavings.toLocaleString();
+            document.getElementById('complianceSavings').textContent = '$' + fourYearComplianceSavings.toLocaleString();
+            document.getElementById('complianceSavings2').textContent = '$' + fourYearComplianceSavings.toLocaleString();
+            document.getElementById('devCost').textContent = '$' + appDevelopmentCost.toLocaleString();
+            document.getElementById('devCost2').textContent = '($' + appDevelopmentCost.toLocaleString() + ')';
+            document.getElementById('hostingCost').textContent = '$' + fourYearHosting.toLocaleString();
+            document.getElementById('hostingCost2').textContent = '($' + fourYearHosting.toLocaleString() + ')';
+            
+            const zebraTotal = totalZebraHardware + (totalZebraHardware * 0.15 * 4);
+            const mobileTotal = totalBenefits - totalMobileHardware;
+            
+            document.getElementById('zebraTotal').textContent = '$' + Math.round(zebraTotal).toLocaleString();
+            document.getElementById('mobileTotal').textContent = '$' + Math.round(mobileTotal).toLocaleString();
+            document.getElementById('netBenefit').textContent = '$' + Math.round(netBenefit).toLocaleString();
+
+            // Update benefits details
+            document.getElementById('vinSavingsDetail').textContent = vinTimeSaved + ' seconds';
+            document.getElementById('tinSavingsDetail').textContent = Math.round(tiresPerTrailer * tinTimeSaved) + ' seconds';
+            document.getElementById('totalTimePerTrailer').textContent = Math.round(timePerTrailer) + ' seconds (' + Math.round(timePerTrailer/60*10)/10 + ' minutes)';
+            document.getElementById('dailyPlantSavings').textContent = Math.round(dailyTimeSavings/plants*10)/10 + ' hours';
+            document.getElementById('dailyNetworkSavings').textContent = Math.round(dailyTimeSavings*10)/10 + ' hours';
+            document.getElementById('annualHoursSaved').textContent = Math.round(annualTimeSavings).toLocaleString() + ' hours';
+        }
+
+        function showTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span:last-child');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('active');
+                arrow.textContent = '▲';
+            }
+        }
+
+        function exportToExcel() {
+            alert('Excel export functionality would be implemented here');
+        }
+
+        function exportToPDF() {
+            alert('PDF export functionality would be implemented here');
+        }
+
+        function saveScenario() {
+            const scenario = {
+                plants: document.getElementById('plants').value,
+                trailersPerDay: document.getElementById('trailersPerDay').value,
+                tiresPerTrailer: document.getElementById('tiresPerTrailer').value,
+                workingDays: document.getElementById('workingDays').value,
+                operatorWage: document.getElementById('operatorWage').value,
+                vinTimeSaved: document.getElementById('vinTimeSaved').value,
+                tinTimeSaved: document.getElementById('tinTimeSaved').value,
+                errorReduction: document.getElementById('errorReduction').value,
+                zebraCost: document.getElementById('zebraCost').value,
+                smartphoneCost: document.getElementById('smartphoneCost').value,
+                devicesPerPlant: document.getElementById('devicesPerPlant').value,
+                appDevelopmentCost: document.getElementById('appDevelopmentCost').value,
+                complianceRisk: document.getElementById('complianceRisk').value,
+                misloadReduction: document.getElementById('misloadReduction').value,
+                annualHosting: document.getElementById('annualHosting').value
+            };
+            
+            localStorage.setItem('cartraROIScenario', JSON.stringify(scenario));
+            alert('Scenario saved successfully!');
+        }
+
+        function loadScenario() {
+            const saved = localStorage.getItem('cartraROIScenario');
+            if (saved) {
+                const scenario = JSON.parse(saved);
+                
+                Object.keys(scenario).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = scenario[key];
+                    }
+                });
+                
+                calculateROI();
+                alert('Scenario loaded successfully!');
+            } else {
+                alert('No saved scenario found');
+            }
+        }
+
+        // Initialize calculator on page load
+        window.addEventListener('load', function() {
+            calculateROI();
+        });
+    </script>
+</body>
+</html>

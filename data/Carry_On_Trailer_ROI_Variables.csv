@@ -1,0 +1,21 @@
+Variable,Recommended Baseline,Low,High,Confidence,Source(s),Notes / Rationale
+Annual company revenue,225000000,175000000,325000000,Medium,"[1][2][3]",Triangulated from multiple tertiary databases and reconciled with top-down ATW parent revenue context.
+Realized revenue per trailer,2500,1800,3500,Low,"[4][5]",Inferred by dividing the triangulated annual revenue by the estimated annual units sold.
+Annual units sold,90000,60000,100000,Medium,"[6][7]",Derived from production capacity estimates and reconciled with revenue/price per unit.
+Sell-through % of produced units,0.92,0.85,0.97,Low,[8],Inferred based on the company's build-to-order model.
+Number of plants in operation,7,6,8,High,"[6][7]",Multiple press releases and news articles from 2024 confirm seven manufacturing facilities.
+Trailers produced per plant per day,50,35,65,Medium,[9],Based on user-provided context.
+Working days per year,250,240,260,High,[10],Standard assumption for US-based manufacturing operations.
+Trailers per truck at full load,4,3,6,Medium,[11],Industry standard for stacking/hauling smaller utility trailers on a 53' flatbed.
+Current truck utilization %,0.5,0.4,0.6,Medium,[9],Based on user-provided context.
+Average haul distance (miles),500,300,750,Medium,[12],Aligns with national average truckload haul distances.
+Freight rate per mile,2.65,2.2,3.2,High,"[13][14]",Based on DAT and other freight market data for contract flatbed rates.
+Current empty miles %,0.2,0.15,0.3,Medium,[15],Slightly higher than the industry average to account for one-way outbound shipping.
+Change-order rate %,0.15,0.08,0.25,Medium,[9],Based on user-provided context.
+Change-order premium %,0.2,0.1,0.35,Low,[16],Industry norm for last-minute freight changes.
+Annual qualified opportunities,300,150,500,Low,[17],Inferred based on the size of the dealer/retailer market.
+Baseline win rate %,0.3,0.2,0.45,Low,[18],Based on general B2B manufacturing sales win rate benchmarks.
+Baseline average deal size,200000,75000,500000,Low,[17],Estimated annual revenue generated per dealer/retailer account.
+Baseline gross margin %,0.22,0.15,0.3,Medium,"[19][20]",Based on comparable public company and ATW's reported EBITDA margins.
+Cross-sell annual revenue baseline,18000000,11000000,34000000,Low,[21],Estimated at 8% of total revenue based on B2B benchmarks.
+At-risk revenue baseline,22500000,11000000,45000000,Low,[22],Estimated at 10% of total revenue based on average B2B customer churn/risk rates.

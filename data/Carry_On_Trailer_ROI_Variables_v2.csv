@@ -1,0 +1,21 @@
+Category,Variable,Point Estimate,Low,High,Confidence,Source(s)
+Revenue & Production,Annual Revenue,225000000,175000000,325000000,MEDIUM,"Zippia, GrowJo, ZoomInfo triangulation"
+Revenue & Production,Realized Revenue/Trailer,2500,1800,3500,LOW,"Lowe's retail pricing, manufacturer margin estimate"
+Revenue & Production,Number of Plants,7,6,8,HIGH,"ATW press releases, VEDP"
+Revenue & Production,Trailers/Plant/Day,50,35,65,MEDIUM,Primary Source
+Revenue & Production,Working Days/Year,250,240,260,HIGH,"Standard US manufacturing"
+Logistics,Trailers per Truck (Full),4,3,6,MEDIUM,Flatbed industry standard
+Logistics,Current Truck Utilization,0.5,0.4,0.6,HIGH,Primary Source
+Logistics,Avg Haul Distance,500,300,750,MEDIUM,Estimate
+Logistics,Freight Rate/Mile,2.65,2.2,3.2,HIGH,"DAT, Scale Funding, FreightGirlz"
+Logistics,Change Order Premium,0.2,0.1,0.35,LOW,Estimate
+Logistics,Change Order Rate,0.15,0.08,0.25,HIGH,Primary Source
+Commercial & Channel,New Dealers Recruited/Year,40,20,80,LOW,"Alexander Group + network size estimate"
+Commercial & Channel,Dealer Wallet Share Growth,0.05,0.03,0.12,LOW,"Revology, Principia, BCG benchmarks"
+Commercial & Channel,Annual Dealer Churn Rate,0.12,0.08,0.2,MEDIUM,"Propel/TryPropel OEM benchmarks"
+Parts & Service,Current Parts & Service Revenue,8000000,5000000,18000000,MEDIUM,"BCG, Kearney, Middlesex Consulting"
+Parts & Service,Warranty Processing Cost,1500000,1000000,3000000,MEDIUM,"WarrantyWeek, Syncron, OnPoint"
+Parts & Service,Service Tech Utilization,0.7,0.6,0.8,MEDIUM,"BuildOps, ServiceTitan, BCG"
+Investment,Implementation Cost,1000000,750000,1500000,MEDIUM,"Industry estimate for logistics platform"
+Investment,Annual Platform Cost,300000,200000,500000,MEDIUM,"Industry estimate for SaaS logistics"
+Investment,WACC / Discount Rate,0.1,0.07,0.15,HIGH,"Standard mid-market manufacturing"
