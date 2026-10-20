@@ -29,7 +29,6 @@ function App() {
   const [avgCustomerValue, setAvgCustomerValue] = useState(3000)
   const [currentResponseTime, setCurrentResponseTime] = useState(24)
   const [salesStaff, setSalesStaff] = useState(25)
-  const [matchmakers, setMatchmakers] = useState(35)
   const [devHoursWeek, setDevHoursWeek] = useState(8)
   const [newHiresYear, setNewHiresYear] = useState(8)
 
@@ -38,7 +37,6 @@ function App() {
   const [annualCrmLicense, setAnnualCrmLicense] = useState(60000)
   const [devHourlyRate, setDevHourlyRate] = useState(75)
   const [salesHourlyRate, setSalesHourlyRate] = useState(35)
-  const [matchmakerHourlyRate, setMatchmakerHourlyRate] = useState(40)
   const [adminHourlyRate, setAdminHourlyRate] = useState(25)
   const [trainingCostDay, setTrainingCostDay] = useState(500)
 
@@ -57,9 +55,9 @@ function App() {
   const saveCurrentScenario = () => {
     const currentState = {
       annualRevenue, monthlyLeads, currentConversionRate, avgCustomerValue,
-      currentResponseTime, salesStaff, matchmakers, devHoursWeek, newHiresYear,
+      currentResponseTime, salesStaff, devHoursWeek, newHiresYear,
       crmImplementationCost, annualCrmLicense, devHourlyRate, salesHourlyRate,
-      matchmakerHourlyRate, adminHourlyRate, trainingCostDay, targetConversionRate,
+      adminHourlyRate, trainingCostDay, targetConversionRate,
       targetResponseTime, targetDevHoursWeek, targetTrainingDays,
       savedAt: new Date().toLocaleDateString()
     }
@@ -78,14 +76,12 @@ function App() {
       setAvgCustomerValue(saved.avgCustomerValue)
       setCurrentResponseTime(saved.currentResponseTime)
       setSalesStaff(saved.salesStaff)
-      setMatchmakers(saved.matchmakers)
       setDevHoursWeek(saved.devHoursWeek)
       setNewHiresYear(saved.newHiresYear)
       setCrmImplementationCost(saved.crmImplementationCost)
       setAnnualCrmLicense(saved.annualCrmLicense)
       setDevHourlyRate(saved.devHourlyRate)
       setSalesHourlyRate(saved.salesHourlyRate)
-      setMatchmakerHourlyRate(saved.matchmakerHourlyRate)
       setAdminHourlyRate(saved.adminHourlyRate)
       setTrainingCostDay(saved.trainingCostDay)
       setTargetConversionRate(saved.targetConversionRate)
@@ -191,14 +187,12 @@ function App() {
 
     // Productivity Gains
     const salesProductivity = salesStaff * salesHourlyRate * 2080 * 0.15 * riskFactor
-    const matchmakerProductivity = matchmakers * matchmakerHourlyRate * 2080 * 0.12 * riskFactor
-    const reportingTimeSavings = (salesStaff + matchmakers + 25) * adminHourlyRate * 52 * 2 * riskFactor
+    const reportingTimeSavings = (salesStaff + 25) * adminHourlyRate * 52 * 2 * riskFactor
 
     const productivityGains = {
       sales: salesProductivity,
-      matchmaker: matchmakerProductivity,
       reporting: reportingTimeSavings,
-      total: salesProductivity + matchmakerProductivity + reportingTimeSavings
+      total: salesProductivity + reportingTimeSavings
     }
 
     const totalBenefits = (revenueUplift.total + costSavings.total + productivityGains.total) * implementationSuccess
@@ -389,8 +383,8 @@ function App() {
                   <Slider
                     id="annualRevenue"
                     min={10000000}
-                    max={50000000}
-                    step={1000000}
+                    max={500000000}
+                    step={5000000}
                     value={[annualRevenue]}
                     onValueChange={(value) => setAnnualRevenue(value[0])}
                     className="mt-2"
@@ -399,7 +393,7 @@ function App() {
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
                     <span>$10M</span>
                     <span>Centralized operations</span>
-                    <span>$50M</span>
+                    <span>$500M</span>
                   </div>
                 </div>
 
@@ -475,18 +469,6 @@ function App() {
                       type="number"
                       value={salesStaff}
                       onChange={(e) => setSalesStaff(Number(e.target.value))}
-                      className="border-purple-200 focus:border-purple-400"
-                      title="Scaled for centralized model"
-                    />
-                    <span className="text-xs text-gray-500">Centralized team</span>
-                  </div>
-                  <div>
-                    <Label htmlFor="matchmakers">Matchmaker Count</Label>
-                    <Input
-                      id="matchmakers"
-                      type="number"
-                      value={matchmakers}
-                      onChange={(e) => setMatchmakers(Number(e.target.value))}
                       className="border-purple-200 focus:border-purple-400"
                       title="Scaled for centralized model"
                     />
@@ -583,16 +565,6 @@ function App() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="matchmakerHourlyRate">Matchmaker Hourly Rate ($)</Label>
-                    <Input
-                      id="matchmakerHourlyRate"
-                      type="number"
-                      value={matchmakerHourlyRate}
-                      onChange={(e) => setMatchmakerHourlyRate(Number(e.target.value))}
-                      className="border-green-200 focus:border-green-400"
-                    />
-                  </div>
                   <div>
                     <Label htmlFor="adminHourlyRate">Admin Hourly Rate ($)</Label>
                     <Input
@@ -782,14 +754,12 @@ function App() {
                   setAvgCustomerValue(3000)
                   setCurrentResponseTime(24)
                   setSalesStaff(25)
-                  setMatchmakers(35)
                   setDevHoursWeek(8)
                   setNewHiresYear(8)
                   setCrmImplementationCost(150000)
                   setAnnualCrmLicense(60000)
                   setDevHourlyRate(75)
                   setSalesHourlyRate(35)
-                  setMatchmakerHourlyRate(40)
                   setAdminHourlyRate(25)
                   setTrainingCostDay(500)
                   setTargetConversionRate(25)
@@ -938,7 +908,6 @@ function App() {
                     <h4 className="font-semibold mb-2" style={{color: '#04DFC6'}}>Productivity Gains: ${formatCurrency(results.breakdown.productivityGains.total)}</h4>
                     <div className="text-sm text-gray-600 space-y-1">
                       <div>• Sales Team Productivity (25 reps): ${formatCurrency(results.breakdown.productivityGains.sales)}</div>
-                      <div>• Matchmaker Productivity (35 staff): ${formatCurrency(results.breakdown.productivityGains.matchmaker)}</div>
                       <div>• Reporting Time Savings (60 users): ${formatCurrency(results.breakdown.productivityGains.reporting)}</div>
                     </div>
                   </div>
